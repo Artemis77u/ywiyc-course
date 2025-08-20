@@ -1,1 +1,60 @@
 
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LW Iframe Test</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; padding:20px; }
+    .ok { display:inline-block; background:#e7f7ed; border:1px solid #8fd3a9; color:#0a381c; padding:6px 10px; border-radius:999px; font-size:.9rem; }
+    .row { margin:16px 0; }
+    input, button { padding:10px 12px; border-radius:8px; border:1px solid #ccc; font-size:1rem; }
+    button { background:#111; color:#fff; border:0; cursor:pointer; }
+    #events { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; white-space: pre-wrap; background:#f6f6f6; padding:12px; border-radius:8px; }
+  </style>
+</head>
+<body>
+  <h1>LearnWorlds Iframe Test <span class="ok">running inside iframe</span></h1>
+  <p>This page is hosted on GitHub Pages. If you see it inside LearnWorlds, the iframe is working.</p>
+
+  <div class="row">
+    <label>Type something and submit (we will postMessage to the parent LW page):</label><br>
+    <input id="msg" placeholder="Hello LearnWorlds!" />
+    <button id="send">Send to parent</button>
+  </div>
+
+  <div class="row">
+    <button id="ping">Ping parent for height</button>
+  </div>
+
+  <h3>Events</h3>
+  <div id="events">[No events yet]</div>
+
+  <script>
+    const events = document.getElementById('events');
+    function log(line) {
+      events.textContent = (events.textContent === '[No events yet]' ? '' : events.textContent + '\\n') + line;
+    }
+
+    // Send a message to the parent (the LW page)
+    document.getElementById('send').addEventListener('click', () => {
+      const text = document.getElementById('msg').value || 'Hello from iframe';
+      parent.postMessage({ type: 'LW_IFRAME_DEMO', text }, '*');
+      log('Sent to parent: ' + text);
+    });
+
+    // Ask parent for a resize
+    document.getElementById('ping').addEventListener('click', () => {
+      parent.postMessage({ type: 'LW_IFRAME_PING', want: 'height' }, '*');
+      log('Pinged parent for height');
+    });
+
+    // Listen for replies from parent (if you add the listener on LW side)
+    window.addEventListener('message', (e) => {
+      log('Got message from parent origin ' + e.origin + ': ' + JSON.stringify(e.data));
+    });
+  </script>
+</body>
+</html>
+
